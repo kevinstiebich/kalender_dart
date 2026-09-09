@@ -35,7 +35,7 @@ class _CalendarPageState extends State<CalendarPage> {
         .ceil();
     List<TableRow> rows = [];
 
-    for (int i = 0; i <= rowCount; i++) {
+    for (int i = 0; i < rowCount; i++) {
       List<Widget> cells = [];
 
       for (int j = 0; j < 7; j++) {
@@ -44,9 +44,48 @@ class _CalendarPageState extends State<CalendarPage> {
         if (cellIndex < daysBeforeFirst ||
             runner > getNumberOfDays(month, year)) {
           // Leere Zelle
-          cells.add(const SizedBox());
+          cells.add(
+            Container(
+              margin: const EdgeInsets.all(2),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: const Color(0xFF4A4A4A), width: 2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                "",
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          );
         } else {
           int currentDay = runner;
+          Color cellColor = Colors.white;
+
+          // Samstage
+          if (j == 5) {
+            cellColor = const Color.fromARGB(255, 197, 226, 255);
+          }
+
+          // Sonntage
+          if (j == 6) {
+            cellColor = const Color.fromARGB(255, 255, 197, 197);
+          }
+
+          // Feiertage
+          if (isHoliday(currentDay, month, year) == "ein") {
+            cellColor = const Color.fromARGB(255, 125, 255, 125);
+          }
+
+          // Ausgewählter Tag
+          if (currentDay == displayedDate.day &&
+              month == displayedDate.month &&
+              year == displayedDate.year) {
+            cellColor = const Color(0xFFFFCB05);
+          }
 
           cells.add(
             GestureDetector(
@@ -56,8 +95,19 @@ class _CalendarPageState extends State<CalendarPage> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.all(10),
-                child: Text("$currentDay", textAlign: TextAlign.center),
+                margin: const EdgeInsets.all(2),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+
+                decoration: BoxDecoration(
+                  color: cellColor,
+                  border: Border.all(color: const Color(0xFF4A4A4A), width: 2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "$currentDay",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           );
@@ -96,59 +146,136 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Kalenderblatt vom ${displayedDate.day.toString().padLeft(2, "0")}.${displayedDate.month.toString().padLeft(2, "0")}.${displayedDate.year}",
+        title: Center(
+          child: Stack(
+            children: [
+              Text(
+                "KaLéNderbLatt",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: "Pokemon",
+                  fontSize: 35,
+                  letterSpacing: 2,
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 6
+                    ..color = const Color(0xFF3C5AA6),
+                ),
+              ),
+
+              const Text(
+                "KaLéNderbLatt",
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: "Pokemon",
+                  fontSize: 35,
+                  letterSpacing: 2,
+                  color: Color(0xFFFFCB05),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Text(
-              "Der ${displayedDate.day}. ${getMonthName(displayedDate.month)} ${displayedDate.year} ist ein ${getWeekday(displayedDate.weekday)} und zwar der ${getNumberOfWeekdays(displayedDate.day)} ${getWeekday(displayedDate.weekday)} im Monat ${getMonthName(displayedDate.month)} des "
-              "Jahres ${displayedDate.year}. Es handelt sich um den ${calcDayOfTheYear(displayedDate.day, displayedDate.month, displayedDate.year)}. Tag des Jahres, was bedeutet, dass es noch "
-              "${calcDaysRemaining(displayedDate.day, displayedDate.month, displayedDate.year)} Tage bis zum Jahresende sind. Der Monat ${getMonthName(displayedDate.month)} hat insgesamt ${getNumberOfDays(displayedDate.month, displayedDate.year)} Tage. Heute ist "
-              "${isHoliday(displayedDate.day, displayedDate.month, displayedDate.year)} gesetzlicher Feiertag in Deutschland.",
-            ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/pokemonworld.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: previousMonth,
-                  icon: const Icon(Icons.arrow_back),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
+
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFFF8F8F8), Color(0xFFE8E8E8)],
+                  ),
+
+                  border: Border.all(color: const Color(0xFF4A4A4A), width: 3),
+
+                  borderRadius: BorderRadius.circular(18),
                 ),
-
-                Text("${displayedDate.month}.${displayedDate.year}"),
-
-                IconButton(
-                  onPressed: nextMonth,
-                  icon: const Icon(Icons.arrow_forward),
+                child: Text(
+                  "Der ${displayedDate.day}. ${getMonthName(displayedDate.month)} ${displayedDate.year} ist ein ${getWeekday(displayedDate.weekday)} und zwar der ${getNumberOfWeekdays(displayedDate.day)} ${getWeekday(displayedDate.weekday)} im Monat ${getMonthName(displayedDate.month)} des "
+                  "Jahres ${displayedDate.year}. Es handelt sich um den ${calcDayOfTheYear(displayedDate.day, displayedDate.month, displayedDate.year)}. Tag des Jahres, was bedeutet, dass es noch "
+                  "${calcDaysRemaining(displayedDate.day, displayedDate.month, displayedDate.year)} Tage bis zum Jahresende sind. Der Monat ${getMonthName(displayedDate.month)} hat insgesamt ${getNumberOfDays(displayedDate.month, displayedDate.year)} Tage. Heute ist "
+                  "${isHoliday(displayedDate.day, displayedDate.month, displayedDate.year)} gesetzlicher Feiertag in Deutschland.",
                 ),
-              ],
-            ),
+              ),
 
-            Table(
-              border: TableBorder.all(),
-              children: [
-                TableRow(
+              Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color.fromARGB(255, 255, 251, 234),
+                      Color.fromARGB(255, 255, 238, 182),
+                    ],
+                  ),
+
+                  border: Border.all(color: const Color(0xFF4A4A4A), width: 3),
+
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Mo", textAlign: TextAlign.center),
-                    Text("Di", textAlign: TextAlign.center),
-                    Text("Mi", textAlign: TextAlign.center),
-                    Text("Do", textAlign: TextAlign.center),
-                    Text("Fr", textAlign: TextAlign.center),
-                    Text("Sa", textAlign: TextAlign.center),
-                    Text("So", textAlign: TextAlign.center),
+                    IconButton(
+                      onPressed: previousMonth,
+                      icon: const Icon(Icons.arrow_back),
+                    ),
+
+                    Text(
+                      "${getMonthName(displayedDate.month)} ${displayedDate.year}",
+                      style: const TextStyle(fontSize: 20),
+                    ),
+
+                    IconButton(
+                      onPressed: nextMonth,
+                      icon: const Icon(Icons.arrow_forward),
+                    ),
                   ],
                 ),
-                ...createCalendar(
-                  displayedDate.day,
-                  displayedDate.month,
-                  displayedDate.year,
-                ),
-              ],
-            ),
-          ],
+              ),
+
+              Table(
+                /* border: TableBorder.all(), */
+                children: [
+                  TableRow(
+                    children: [
+                      calendarHeader("Mo"),
+                      calendarHeader("Di"),
+                      calendarHeader("Mi"),
+                      calendarHeader("Do"),
+                      calendarHeader("Fr"),
+                      calendarHeader("Sa"),
+                      calendarHeader("So"),
+                    ],
+                  ),
+                  ...createCalendar(
+                    displayedDate.day,
+                    displayedDate.month,
+                    displayedDate.year,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 30),
+
+              Text("Historische Ereignisse"),
+            ],
+          ),
         ),
       ),
     );
@@ -156,6 +283,24 @@ class _CalendarPageState extends State<CalendarPage> {
 }
 
 // ################################## CREATORS ##################################
+
+Widget calendarHeader(String text) {
+  return Container(
+    margin: const EdgeInsets.all(1),
+    padding: const EdgeInsets.symmetric(vertical: 8),
+
+    decoration: BoxDecoration(
+      color: const Color(0xFF2A75BB),
+      borderRadius: BorderRadius.circular(8),
+    ),
+
+    child: Text(
+      text,
+      textAlign: TextAlign.center,
+      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+    ),
+  );
+}
 
 // ################################## GETTER ##################################
 
