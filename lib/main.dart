@@ -11,7 +11,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner:
+          false, // nicht notwendig, Debug Banner wird in der finalen Version sowieso nicht angezeigt
       home: const CalendarPage(),
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.green)),
     );
